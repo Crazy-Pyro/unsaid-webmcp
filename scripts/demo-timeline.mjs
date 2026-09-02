@@ -7,39 +7,39 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const narrationScenes = [
   {
     duration: 14,
-    text: "Group decisions have a hidden cost. To coordinate, people reveal budgets, accessibility needs, family obligations, or other private constraints—or they stay silent and accept a bad outcome.",
+    text: "Group decisions come with a hidden cost. To coordinate, people share budgets, accessibility needs, family obligations, and other private details. Or they stay quiet and settle for a bad outcome.",
   },
   {
     duration: 16,
-    text: "UNSAID changes that. Each person tells their own agent the full truth. The shared webpage learns only the structured judgments needed to construct common ground. Agents negotiate attributes. Humans ratify the agreement.",
+    text: "UNSAID offers a third path. Everyone tells their own agent the whole truth. The shared page gets only the structured judgments needed to find common ground. Agents negotiate. People make the final call.",
   },
   {
     duration: 14,
-    text: "This is a four-person offsite decision. Three fictional demo agents have already evaluated the options from deterministic private fixture profiles. I am the live participant. The room has received zero raw private context from me.",
+    text: "Four people are choosing an offsite. Three labeled demo agents already evaluated the options deterministically. I am the live participant. The room has none of my private context.",
   },
   {
     duration: 21,
-    text: "I tell ChatGPT my constraints privately. The page exposes a typed get room state tool and a submit ballot tool through WebMCP. ChatGPT evaluates the live options and sends only preferred, acceptable, or unacceptable—no reason and no private narrative.",
+    text: "I tell ChatGPT my constraints in private. Through Web M C P, the page gives it two typed tools: get room state, and submit ballot. ChatGPT evaluates the choices, then shares only preferred, acceptable, or unacceptable. No reason. No private story.",
   },
   {
     duration: 17,
-    text: "No original option works for everyone. At this moment the webpage changes its agent interface. Bridge tools appear, and the room reveals only the minimum attribute signals needed to move forward.",
+    text: "None of the original options works for everyone. Now the page changes the tools available to the agent. Bridge tools appear, and the room shares only the minimum attribute signals needed to move forward.",
   },
   {
     duration: 26,
-    text: "ChatGPT uses those public signals plus my private context to create an option that did not exist: a Thursday Lakeside Lab that ends by four and costs two hundred thirty-five dollars. It does not disclose why those changes matter.",
+    text: "ChatGPT combines those public signals with my private context and creates a new option: Lakeside Lab on Thursday, ending by four, for two hundred thirty-five dollars. The proposal changes what matters, without revealing why it matters.",
   },
   {
     duration: 16,
-    text: "The deterministic demo agents re-evaluate the proposal. Everyone can accept it. The candidate moves into common ground, and a new WebMCP action becomes available: nominate it for ratification.",
+    text: "The demo agents evaluate the new proposal. This time, all four participants accept it. The candidate moves into common ground, and Web M C P exposes a new action: nominate it for ratification.",
   },
   {
     duration: 18,
-    text: "The agent can open ratification, but it cannot make my final decision. I review the shared outcome and ratify it myself.",
+    text: "The agent can open ratification. It cannot make my final decision. I review the shared outcome and approve it myself.",
   },
   {
     duration: 20,
-    text: "The receipt shows what was shared: structured ballots, public signals, a bridge proposal, and final approval. My raw private explanation never entered the room. Every agent action used phase-specific WebMCP tools wired to the same operations as the human interface.",
+    text: "The receipt shows the disclosure boundary: structured ballots, public signals, one bridge proposal, and final approval. My private explanation never entered the room. Each agent action used a phase-specific Web M C P tool tied to the same operations as the human interface.",
   },
   {
     duration: 10,
@@ -57,19 +57,19 @@ export const shots = [
   {
     background: "frames-wide/01-briefing.png",
     caption:
-      "To coordinate, people reveal budgets, accessibility needs, family obligations, or other private constraints—",
+      "To coordinate, people share budgets, accessibility needs, family obligations, and other private details—",
     duration: 4.5,
     label: "Minimum disclosure",
   },
   {
     background: "frames-wide/03-get-state.png",
-    caption: "or they stay silent and accept a bad outcome.",
+    caption: "or they stay quiet and settle for a bad outcome.",
     duration: 4.5,
     label: "Private context stays private",
   },
   {
     background: "frames-wide/00-landing.png",
-    caption: "UNSAID changes that.",
+    caption: "UNSAID offers a third path.",
     duration: 5,
     label: "Private context → shared agreement",
   },
@@ -82,27 +82,27 @@ export const shots = [
   {
     background: "frames-wide/00-landing.png",
     caption:
-      "The shared webpage learns only structured judgments. Agents negotiate attributes. Humans ratify the agreement.",
+      "The shared page gets only structured judgments. Agents negotiate. People make the final call.",
     duration: 6,
     label: "A neutral coordination protocol",
   },
   {
     background: "frames-wide/01-briefing.png",
     caption:
-      "This is a four-person offsite decision. Three fictional demo agents already evaluated the options from deterministic fixture profiles.",
+      "Four people are choosing an offsite. Three labeled demo agents evaluated the options deterministically.",
     duration: 7,
     label: "Three deterministic demo agents",
   },
   {
     background: "frames-wide/03-get-state.png",
     caption:
-      "I am the live participant. The room has received zero raw private context from me.",
+      "I am the live participant. The room has none of my private context.",
     duration: 7,
     label: "One live ChatGPT agent",
   },
   {
     background: "frames-wide/02-webmcp-discovery.png",
-    caption: "I tell ChatGPT my constraints privately.",
+    caption: "I tell ChatGPT my constraints in private.",
     duration: 6,
     label: "Live ChatGPT agent",
   },
@@ -128,26 +128,26 @@ export const shots = [
   },
   {
     background: "frames-wide/05-publish-signal.png",
-    caption: "At this moment the webpage changes its agent interface. Bridge tools appear,",
+    caption: "Now the page changes the tools available to the agent. Bridge tools appear,",
     duration: 7,
     label: "Phase-aware WebMCP tools",
   },
   {
     background: "frames-wide/05-publish-signal.png",
     caption:
-      "and the room reveals only the minimum attribute signals needed to move forward.",
+      "and the room shares only the minimum attribute signals needed to move forward.",
     duration: 5,
     label: "WebMCP tool call · publish_signal",
   },
   {
     background: "frames-wide/05-publish-signal.png",
-    caption: "ChatGPT uses those public signals plus my private context",
+    caption: "ChatGPT combines those public signals with my private context",
     duration: 6,
     label: "Structured signals · source hidden",
   },
   {
     background: "frames-wide/06-propose-bridge.png",
-    caption: "to create an option that did not exist: a Thursday Lakeside Lab",
+    caption: "to create a new option: Lakeside Lab on Thursday",
     duration: 8,
     label: "WebMCP tool call · propose_bridge",
   },
@@ -159,19 +159,19 @@ export const shots = [
   },
   {
     background: "frames-wide/06-propose-bridge.png",
-    caption: "It does not disclose why those changes matter.",
+    caption: "The proposal changes what matters, without revealing why it matters.",
     duration: 5,
     label: "No private narrative field",
   },
   {
     background: "frames-wide/06-propose-bridge.png",
-    caption: "The deterministic demo agents re-evaluate the proposal.",
+    caption: "The demo agents evaluate the new proposal.",
     duration: 5,
     label: "Deterministic demo agents",
   },
   {
     background: "frames-wide/07-common-ground.png",
-    caption: "Everyone can accept it. The candidate moves into common ground,",
+    caption: "All four participants accept it. The candidate moves into common ground,",
     duration: 6,
     label: "4 / 4 can accept",
   },
@@ -195,27 +195,27 @@ export const shots = [
   },
   {
     background: "frames-wide/09-agreement.png",
-    caption: "and ratify it myself.",
+    caption: "and approve it myself.",
     duration: 5,
     label: "Human ratification",
   },
   {
     background: "frames-wide/09-agreement.png",
     caption:
-      "The receipt shows what was shared: structured ballots, public signals, a bridge proposal, and final approval.",
+      "The receipt shows the disclosure boundary: structured ballots, public signals, one bridge proposal, and final approval.",
     duration: 6,
     label: "Inspectable agreement receipt",
   },
   {
     background: "frames-wide/10-agreement-tool.png",
-    caption: "My raw private explanation never entered the room.",
+    caption: "My private explanation never entered the room.",
     duration: 5,
     label: "Zero raw private reasons received",
   },
   {
     background: "frames-wide/10-agreement-tool.png",
     caption:
-      "Every agent action used phase-specific WebMCP tools wired to the same operations as the human interface.",
+      "Each agent action used a phase-specific WebMCP tool tied to the same operations as the human interface.",
     duration: 7,
     label: "WebMCP tool call · get_agreement",
   },

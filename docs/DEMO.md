@@ -77,7 +77,7 @@ Narration: “The agreement is durable, inspectable, and human-ratified. The rec
 
 ## Release master
 
-The release edit is generated from a clean, fresh-room WebMCP run and uses only original product imagery plus macOS system narration. It includes burned-in captions and a matching SRT sidecar.
+The release edit is generated from a clean, fresh-room WebMCP run and uses only original product imagery plus locally rendered Kokoro neural narration. It includes burned-in captions and a matching SRT sidecar.
 
 - Runtime: `02:52.000`
 - Frame: `1920×1080` at 30 fps
@@ -88,4 +88,4 @@ The release edit is generated from a clean, fresh-room WebMCP run and uses only 
 - Captions: `outputs/video/UNSAID-WebMCP-demo.srt`
 - Thumbnail: `public/submission/thumbnail-v2.png`
 
-`npm run video:prepare` writes the exact shot and narration manifests. After the captioned stills are rendered into `outputs/video/render`, `npm run video:build` generates and validates the final master. The narration build uses the macOS Samantha system voice and fails closed if speech audio is missing or if the result is not under three minutes at 1920×1080 H.264/AAC.
+`npm run video:prepare` writes the exact shot and narration manifests. After the captioned stills are rendered into `outputs/video/render`, `npm run video:build` generates and validates the final master. The narration build uses Kokoro 82M's `af_heart` voice at its natural speed; the Apache-2.0 model is downloaded and cached locally on first use. The build fails closed if speech audio is missing, a scene overruns its visual slot, or the result is not under three minutes at 1920×1080 H.264/AAC.

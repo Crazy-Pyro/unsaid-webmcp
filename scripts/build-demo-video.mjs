@@ -60,20 +60,20 @@ async function assertExists(filePath) {
 async function buildAudio() {
   const converted = [];
 
+  // Synthesis runs in a separate process so ONNX Runtime is fully shut down
+  // before ffmpeg starts spawning native encoder workers.
+  run(process.execPath, ["scripts/render-neural-narration.mjs"]);
+
   for (const [index, scene] of narrationScenes.entries()) {
     const stem = `scene-${String(index).padStart(2, "0")}`;
-    const rawPath = path.join(audioDirectory, `${stem}.aiff`);
-    const convertedPath = path.join(audioDirectory, `${stem}.wav`);
-
-    run("say", ["-v", "Samantha", "-r", "185", "-o", rawPath, "--", scene.text], {
-      quiet: true,
-    });
+    const rawPath = path.join(audioDirectory, `${stem}-neural.wav`);
+    const convertedPath = path.join(audioDirectory, `${stem}-mixed.wav`);
 
     const spokenDuration = probeDuration(rawPath);
     const rawBytes = (await stat(rawPath)).size;
     if (!Number.isFinite(spokenDuration) || spokenDuration < 0.5 || rawBytes < 16_000) {
       throw new Error(
-        `Narration scene ${index + 1} did not contain rendered speech. Run outside a restricted audio sandbox.`,
+        `Narration scene ${index + 1} did not contain rendered neural speech.`,
       );
     }
     if (spokenDuration + 0.65 > scene.duration) {
@@ -92,7 +92,7 @@ async function buildAudio() {
         "-i",
         rawPath,
         "-af",
-        "adelay=650:all=1,apad",
+        "loudnorm=I=-16:TP=-1.5:LRA=11,adelay=650:all=1,apad",
         "-t",
         String(scene.duration),
         "-ar",
@@ -229,9 +229,6 @@ async function writeSubtitles() {
 }
 
 async function main() {
-  if (process.platform !== "darwin") {
-    throw new Error("The reproducible narration build uses the macOS Samantha voice.");
-  }
   if (Math.abs(shots.reduce((sum, shot) => sum + shot.duration, 0) - totalDuration) > 0.001) {
     throw new Error("Narration and visual timelines do not have the same duration.");
   }
@@ -240,7 +237,8 @@ async function main() {
   await mkdir(renderDirectory, { recursive: true });
   await writeSubtitles();
 
-  const [narrationPath, silentPath] = await Promise.all([buildAudio(), buildVideo()]);
+  const narrationPath = await buildAudio();
+  const silentPath = await buildVideo();
   run(
     "ffmpeg",
     [
