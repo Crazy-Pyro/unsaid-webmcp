@@ -61,3 +61,4 @@ Result: Pass.
 - Unknown candidates, invalid time order, and invalid enum values were rejected.
 - A ratification request without explicit human intent returned `403 HUMAN_ACTION_REQUIRED`.
 - A regular browser can complete the flow through the Manual tab.
+- WebMCP execution `AbortSignal`s reach the underlying read, mutation, and refresh requests.

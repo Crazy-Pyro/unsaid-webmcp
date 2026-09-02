@@ -20,7 +20,10 @@ type ToolDefinition = {
     readOnlyHint?: boolean;
     untrustedContentHint?: boolean;
   };
-  execute(input: unknown): Record<string, unknown> | Promise<unknown>;
+  execute(
+    input: unknown,
+    context?: { signal?: AbortSignal },
+  ): Record<string, unknown> | Promise<unknown>;
 };
 
 declare global {
@@ -232,10 +235,11 @@ export function useWebMCPTools(options: WebMCPOptions) {
     const controllers = new Map<string, AbortController>();
     const runWrite = async (
       tool: string,
+      signal: AbortSignal | undefined,
       operation: () => Promise<ToolResult>,
     ) => {
       const result = await operation();
-      await latest.current.refresh();
+      await latest.current.refresh(signal);
       latest.current.onEffect({
         tool,
         summary: result.public_effect ?? result.summary,
@@ -252,9 +256,12 @@ export function useWebMCPTools(options: WebMCPOptions) {
           'Read the current UNSAID room, active options, aggregate support, public signals, your status, and valid next actions. Use before evaluating options or after the room changes.',
         inputSchema: { type: 'object', properties: {}, additionalProperties: false },
         annotations: { readOnlyHint: true, untrustedContentHint: true },
-        async execute() {
-          const state = await readRoom(latest.current.slug);
-          await latest.current.refresh();
+        async execute(_input, execution) {
+          const state = await readRoom(
+            latest.current.slug,
+            execution?.signal,
+          );
+          await latest.current.refresh(execution?.signal);
           return conciseState(state);
         },
       }),
@@ -265,13 +272,15 @@ export function useWebMCPTools(options: WebMCPOptions) {
           'Submit or revise your structured evaluations. This records only preferred, acceptable, or unacceptable for each candidate; it does not send a reason or private context.',
         inputSchema: ballotSchema,
         annotations: { readOnlyHint: false },
-        execute(input) {
+        execute(input, execution) {
           const parsed = ballotInputSchema.parse(input);
           return runWrite(
             'submit_ballot',
+            execution?.signal,
             () =>
               roomClient.submitBallot(latest.current.slug, parsed, {
                 origin: 'webmcp',
+                signal: execution?.signal,
               }),
           );
         },
@@ -283,13 +292,15 @@ export function useWebMCPTools(options: WebMCPOptions) {
           'Publish one structured attribute request without your name or reason. In a small group, others may still infer the source.',
         inputSchema: signalSchema,
         annotations: { readOnlyHint: false },
-        execute(input) {
+        execute(input, execution) {
           const parsed = signalInputSchema.parse(input);
           return runWrite(
             'publish_signal',
+            execution?.signal,
             () =>
               roomClient.publishSignal(latest.current.slug, parsed, {
                 origin: 'webmcp',
+                signal: execution?.signal,
               }),
           );
         },
@@ -301,13 +312,15 @@ export function useWebMCPTools(options: WebMCPOptions) {
           'Create a bridge option by changing structured attributes of an existing candidate. Use public signals plus private context without sending a private explanation.',
         inputSchema: bridgeSchema,
         annotations: { readOnlyHint: false },
-        execute(input) {
+        execute(input, execution) {
           const parsed = bridgeInputSchema.parse(input);
           return runWrite(
             'propose_bridge',
+            execution?.signal,
             () =>
               roomClient.proposeBridge(latest.current.slug, parsed, {
                 origin: 'webmcp',
+                signal: execution?.signal,
               }),
           );
         },
@@ -319,13 +332,15 @@ export function useWebMCPTools(options: WebMCPOptions) {
           'Nominate a candidate everyone accepts. This opens human ratification and does not record final approval.',
         inputSchema: nominationSchema,
         annotations: { readOnlyHint: false },
-        execute(input) {
+        execute(input, execution) {
           const parsed = nominationInputSchema.parse(input);
           return runWrite(
             'nominate_candidate',
+            execution?.signal,
             () =>
               roomClient.nominate(latest.current.slug, parsed, {
                 origin: 'webmcp',
+                signal: execution?.signal,
               }),
           );
         },
@@ -337,8 +352,11 @@ export function useWebMCPTools(options: WebMCPOptions) {
           'Read the completed agreement, final candidate, public action ledger, and minimum-disclosure accounting after every participant ratifies.',
         inputSchema: { type: 'object', properties: {}, additionalProperties: false },
         annotations: { readOnlyHint: true, untrustedContentHint: true },
-        async execute() {
-          const agreement = await readAgreement(latest.current.slug);
+        async execute(_input, execution) {
+          const agreement = await readAgreement(
+            latest.current.slug,
+            execution?.signal,
+          );
           return {
             phase: agreement.room.phase,
             room_version: agreement.room.version,
