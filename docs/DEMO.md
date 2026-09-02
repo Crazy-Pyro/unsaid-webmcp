@@ -20,51 +20,63 @@ The same sequence is available from the **Manual** tab in a browser without WebM
 
 ### 0:00–0:14 — The human problem
 
-Visual: title card, candidate field, privacy indicator.
+Visual: title card, candidate field, and privacy indicator.
 
-Narration: “Group decisions have a hidden cost. To coordinate, people reveal budgets, accessibility needs, family obligations, or other private constraints, or they stay silent and accept a bad outcome.”
+Narration: “Group decisions come with a hidden cost. To coordinate, people share budgets, accessibility needs, family obligations, and other private details. Or they stay quiet and settle for a bad outcome.”
 
 ### 0:14–0:30 — Product thesis
 
 Visual: landing page and participant topology.
 
-Narration: “UNSAID creates a third path. Tell your own agent the whole truth. Tell the shared room only enough to agree.”
+Narration: “UNSAID offers a third path. Everyone tells their own agent the whole truth. The shared page gets only the structured judgments needed to find common ground. Agents negotiate. People make the final call.”
 
-### 0:30–0:53 — Structured room
+### 0:30–0:44 — Structured room
 
-Visual: start a fresh room and show the five original options.
+Visual: the briefing state and a WebMCP room-state read.
 
-Narration: “This judge room represents one live participant and three clearly labeled deterministic demo agents. Their private profiles stay server-side. The room exposes only candidate attributes, aggregate support, and structured actions.”
+Narration: “Four people are choosing an offsite. Three labeled demo agents already evaluated the options deterministically. I am the live participant. The room has none of my private context.”
 
-### 0:53–1:22 — WebMCP ballot
+### 0:44–1:05 — WebMCP ballot
 
-Visual: ChatGPT reads state and calls `submit_ballot`; room enters bridge mode.
+Visual: WebMCP tool discovery followed by the `submit_ballot` result.
 
-Narration: “My browser agent knows my full constraints in our private conversation. Through a narrow WebMCP schema it submits only candidate IDs and stance values. No reason or chat transcript reaches the room.”
+Narration: “I tell ChatGPT my constraints in private. Through Web M C P, the page gives it two typed tools: get room state, and submit ballot. ChatGPT evaluates the choices, then shares only preferred, acceptable, or unacceptable. No reason. No private story.”
 
-### 1:22–1:52 — Construct the bridge
+### 1:05–1:22 — Enter bridge mode
 
-Visual: public signals, `propose_bridge`, lineage animation.
+Visual: the failed original slate, phase-aware bridge tools, and source-hidden public signals.
 
-Narration: “No original works for everyone. The agent combines public signals with my private context to create a Thursday Lakeside Lab that ends at four and costs two hundred thirty-five dollars. The proposal contains three structured changes, not an explanation.”
+Narration: “None of the original options works for everyone. Now the page changes the tools available to the agent. Bridge tools appear, and the room shares only the minimum attribute signals needed to move forward.”
 
-### 1:52–2:08 — Find common ground
+### 1:22–1:48 — Construct the bridge
 
-Visual: agent evaluates the bridge; node moves into the common-ground ring.
+Visual: public signals, the `propose_bridge` result, and the proposal lineage.
 
-Narration: “The deterministic fixtures re-evaluate it. All four participants can accept the bridge, so a new phase-specific action becomes available: nominate it.”
+Narration: “ChatGPT combines those public signals with my private context and creates a new option: Lakeside Lab on Thursday, ending by four, for two hundred thirty-five dollars. The proposal changes what matters, without revealing why it matters.”
 
-### 2:08–2:29 — Preserve human authority
+### 1:48–2:04 — Find common ground
 
-Visual: `nominate_candidate`, ratification screen, visible human click.
+Visual: demo-agent evaluation, four-of-four acceptance, and the newly available nomination action.
 
-Narration: “The agent can open ratification, but it cannot make my final decision. Only the visible human interface can record my approval.”
+Narration: “The demo agents evaluate the new proposal. This time, all four participants accept it. The candidate moves into common ground, and Web M C P exposes a new action: nominate it for ratification.”
 
-### 2:29–2:48 — Receipt and close
+### 2:04–2:22 — Preserve human authority
 
-Visual: final receipt, live URL, repository URL.
+Visual: agent nomination, the ratification screen, and a visible human approval.
 
-Narration: “The agreement is durable, inspectable, and human-ratified. The receipt shows what was shared and what was not: zero raw private reasons received. The old web helps one person transact. UNSAID helps many people agree.”
+Narration: “The agent can open ratification. It cannot make my final decision. I review the shared outcome and approve it myself.”
+
+### 2:22–2:42 — Receipt and disclosure boundary
+
+Visual: the agreement receipt, zero-raw-context metric, `get_agreement` result, and repository card.
+
+Narration: “The receipt shows the disclosure boundary: structured ballots, public signals, one bridge proposal, and final approval. My private explanation never entered the room. Each agent action used a phase-specific Web M C P tool tied to the same operations as the human interface.”
+
+### 2:42–2:52 — Close
+
+Visual: final title card with the live URL.
+
+Narration: “The old web helps one person transact. UNSAID helps many people agree.”
 
 ## Capture checklist
 
