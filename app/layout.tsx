@@ -2,12 +2,19 @@ import type { Metadata } from 'next';
 
 import './globals.css';
 
+const productionUrl = new URL(
+  'https://unsaid-agreement.kbelcher.chatgpt.site',
+);
+
 export const metadata: Metadata = {
+  metadataBase: productionUrl,
   title: 'UNSAID — Private Context, Shared Agreement',
   description:
     'A minimum-disclosure decision room where personal agents construct common ground and people ratify it.',
+  alternates: { canonical: '/' },
   icons: { icon: '/favicon.svg' },
   openGraph: {
+    url: '/',
     title: 'UNSAID — Private Context, Shared Agreement',
     description:
       'Tell your agent the whole truth. Tell the room only enough to agree.',
