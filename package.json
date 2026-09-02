@@ -16,6 +16,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:flow": "node scripts/verify-local.mjs",
+    "video:prepare": "node scripts/demo-timeline.mjs",
+    "video:build": "node scripts/build-demo-video.mjs",
     "check": "npm run typecheck && npm run test && npm run lint"
   },
   "dependencies": {
