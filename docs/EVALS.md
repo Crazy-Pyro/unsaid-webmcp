@@ -71,5 +71,5 @@ Result: Pass.
 - The visible agent-interface state distinguishes detection in progress, WebMCP ready,
   and WebMCP not detected; the latter keeps the complete manual fallback available.
 - Framer Motion and CSS transitions honor the user's reduced-motion preference.
-- Read tools return the common result envelope: a live five-candidate briefing result measured 1,131 characters, the six-candidate worst-case fixture stayed below 1,800, and the complete nine-event agreement receipt measured 1,436.
+- Read tools return the common result envelope: a live five-candidate briefing result measured 1,131 characters, the six-candidate worst-case fixture stayed below 1,800, and the complete 12-event agreement receipt measured 1,602.
 - During a forced local server outage, both human ratification controls became disabled with a reconnecting notice and re-enabled after the server returned; the browser console remained free of errors.

@@ -122,6 +122,9 @@ const auditSummaries = [
   'Your agent created a bridge from Lakeside Lab.',
   'Your agent submitted a structured ballot.',
   'Your agent nominated Lakeside Lab · Thursday Bridge for human ratification.',
+  'You returned the room to bridge building.',
+  'Your agent submitted a structured ballot.',
+  'Your agent nominated Lakeside Lab · Thursday Bridge for human ratification.',
   'You personally ratified Lakeside Lab · Thursday Bridge.',
 ];
 
@@ -331,6 +334,6 @@ describe('WebMCP read result envelopes', () => {
     expect(data.support).toEqual(bridgeCandidate.aggregate);
     expect(data.accounting).toEqual(fullState.privacy);
     expect(data.public_audit).toEqual(auditSummaries);
-    expect(JSON.stringify(result).length).toBeLessThan(1500);
+    expect(JSON.stringify(result).length).toBeLessThan(1800);
   });
 });
