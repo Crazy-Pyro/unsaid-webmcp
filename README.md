@@ -4,7 +4,9 @@
 
 UNSAID is a minimum-disclosure decision room. Each participant can tell their own browser agent the full private context. The shared webpage receives structured judgments, structured coordination signals, bridge proposals, and final ratification, not the participant’s raw private explanation. Agents help the group construct common ground; humans make the agreement.
 
-> Live demo and demo video links will be pinned here with the challenge release.
+- **Live demo:** https://unsaid-agreement.kbelcher.chatgpt.site
+- **Source:** https://github.com/Crazy-Pyro/unsaid-webmcp
+- **Demo video:** https://youtu.be/2VwElVuBz3k
 
 ![UNSAID agent-created common-ground bridge](public/submission/02-agent-created-bridge.jpg)
 
