@@ -165,7 +165,10 @@ export function RoomApp({ slug }: { slug: string }) {
       }
     };
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') void refresh(controller.signal);
+      if (document.visibilityState === 'visible') {
+        if (timer) clearTimeout(timer);
+        void poll();
+      }
     };
     document.addEventListener('visibilitychange', onVisibility);
     schedule(1500);
@@ -347,6 +350,7 @@ function RoomExperience({ slug, state, refresh, connection }: ExperienceProps) {
             <RatificationPanel
               state={state}
               busy={busy}
+              connection={connection}
               runAction={runAction}
             />
           ) : state.room.phase === 'AGREED' ? (
@@ -1251,10 +1255,12 @@ function ActivityLedger({ state }: { state: RoomState }) {
 function RatificationPanel({
   state,
   busy,
+  connection,
   runAction,
 }: {
   state: RoomState;
   busy: string;
+  connection: ConnectionState;
   runAction: RunAction;
 }) {
   const candidate = state.candidates.find(
@@ -1303,7 +1309,7 @@ function RatificationPanel({
         <Button
           className="ratify-primary"
           size="lg"
-          disabled={Boolean(busy)}
+          disabled={Boolean(busy) || connection !== 'connected'}
           onClick={() =>
             void runAction('ratify', () =>
               roomClient.ratify(state.room.slug, {
@@ -1318,7 +1324,7 @@ function RatificationPanel({
         </Button>
         <Button
           variant="ghost"
-          disabled={Boolean(busy)}
+          disabled={Boolean(busy) || connection !== 'connected'}
           onClick={() =>
             void runAction('decline', () =>
               roomClient.ratify(state.room.slug, {
@@ -1333,7 +1339,9 @@ function RatificationPanel({
         </Button>
       </div>
       <p className="ratify-note">
-        This approval is available only in the visible human interface. No site tool can click it for you.
+        {connection === 'connected'
+          ? 'This approval is available only in the visible human interface. No site tool can click it for you.'
+          : 'Ratification is paused while the room reconnects, so your final decision cannot be duplicated or lost.'}
       </p>
     </motion.section>
   );

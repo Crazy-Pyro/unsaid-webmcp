@@ -20,6 +20,7 @@ UNSAID uses top-level imperative registration through `document.modelContext.reg
 - Inputs reject unknown properties.
 - IDs and structured values are length- and type-bounded.
 - Tool results report `ok`, `room_version`, `summary`, visible `public_effect`, privacy notes, and valid next actions.
+- Read tools use the same result envelope as writes. Candidate rows are column-labeled to preserve every decision attribute and aggregate without returning the full page payload.
 - State-reading tools carry `untrustedContentHint`.
 - There is no ratification tool.
 
@@ -29,7 +30,7 @@ UNSAID uses top-level imperative registration through `document.modelContext.reg
 
 Input: empty object.
 
-Returns the decision, phase, version, active candidate attributes and aggregates, public signals, the current participant’s own ballot, privacy accounting, and available actions. It omits other individual ballots and all fixture profiles.
+Returns the decision, phase, version, active candidate attributes and aggregates, public signals, the current participant’s own ballot, a privacy statement, and available actions. It omits other individual ballots and all fixture profiles.
 
 ### `submit_ballot`
 
@@ -99,3 +100,4 @@ Returns the completed candidate, final room version, public audit ledger, and mi
 - Cross-origin mutations return `403 CROSS_ORIGIN_REQUEST`.
 - Ratification without the visible interface’s human-intent header returns `403 HUMAN_ACTION_REQUIRED`.
 - Polling pauses while the document is hidden and backs off to 15 seconds after network failures.
+- Both ratification controls remain disabled while the room is reconnecting and re-enable only after a successful state refresh.

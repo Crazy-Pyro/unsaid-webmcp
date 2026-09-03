@@ -170,29 +170,79 @@ const nominationSchema = {
   required: ['room_version', 'candidate_id'],
 };
 
-function conciseState(state: RoomState) {
+export function formatRoomStateToolResult(state: RoomState): ToolResult {
   return {
-    phase: state.room.phase,
+    ok: true,
     room_version: state.room.version,
-    decision: state.room.decision_question,
-    current_participant: state.current_participant.display_name,
-    candidates: state.candidates.map((candidate) => ({
-      id: candidate.id,
-      title: candidate.title,
-      day: candidate.day,
-      time: `${candidate.start_time}-${candidate.end_time}`,
-      cost_per_person: candidate.cost_per_person,
-      travel_minutes: candidate.travel_minutes,
-      setting: candidate.setting,
-      accessibility: candidate.accessibility,
-      format: candidate.format,
-      aggregate: candidate.aggregate,
-    })),
-    public_signals: state.signals.map((signal) => signal.display),
-    your_ballot: state.current_participant.ballot,
-    available_actions: state.available_actions,
+    summary: `${state.room.phase}: ${state.candidates.length} active option${state.candidates.length === 1 ? '' : 's'}.`,
+    privacy: 'No raw private reasons stored; other individual ballots hidden.',
+    data: {
+      phase: state.room.phase,
+      decision: state.room.decision_question,
+      current_participant: state.current_participant.display_name,
+      candidate_columns:
+        'id,title,day,time,cost_usd,travel_min,setting,access,format,prefer,accept,reject,missing,distance_to_consensus,viable',
+      candidates: state.candidates.map((candidate) => [
+        candidate.id,
+        candidate.title,
+        candidate.day,
+        `${candidate.start_time}-${candidate.end_time}`,
+        candidate.cost_per_person,
+        candidate.travel_minutes,
+        candidate.setting,
+        candidate.accessibility,
+        candidate.format,
+        candidate.aggregate.preferred,
+        candidate.aggregate.acceptable,
+        candidate.aggregate.unacceptable,
+        candidate.aggregate.missing,
+        candidate.aggregate.distance_to_consensus,
+        candidate.aggregate.viable,
+      ]),
+      public_signals: state.signals.map((signal) =>
+        signal.count > 1 ? `${signal.display} ×${signal.count}` : signal.display,
+      ),
+      your_ballot: state.current_participant.ballot,
+    },
+    next_actions: state.available_actions,
+  };
+}
+
+export function formatAgreementToolResult(
+  agreement: RoomState & { agreement: unknown },
+): ToolResult {
+  const candidate = agreement.candidates.find(
+    (entry) => entry.id === agreement.room.nominated_candidate_id,
+  );
+  return {
+    ok: true,
+    room_version: agreement.room.version,
+    summary: candidate
+      ? `Agreement reached: ${candidate.title}.`
+      : 'Agreement reached.',
     privacy:
-      'Raw private reasons are not requested or stored; other individual ballots are hidden.',
+      'No raw private reasons were received; individual ballots remain hidden.',
+    data: {
+      phase: agreement.room.phase,
+      final_candidate: candidate
+        ? {
+            id: candidate.id,
+            title: candidate.title,
+            day: candidate.day,
+            time: `${candidate.start_time}-${candidate.end_time}`,
+            cost_per_person: candidate.cost_per_person,
+            travel_minutes: candidate.travel_minutes,
+            setting: candidate.setting,
+            accessibility: candidate.accessibility,
+            format: candidate.format,
+            changes: candidate.changes,
+          }
+        : null,
+      support: candidate?.aggregate,
+      accounting: agreement.privacy,
+      public_audit: agreement.audit_events.map((event) => event.public_summary),
+    },
+    next_actions: [],
   };
 }
 
@@ -262,7 +312,7 @@ export function useWebMCPTools(options: WebMCPOptions) {
             execution?.signal,
           );
           await latest.current.refresh(execution?.signal);
-          return conciseState(state);
+          return formatRoomStateToolResult(state);
         },
       }),
       submit_ballot: () => ({
@@ -357,15 +407,7 @@ export function useWebMCPTools(options: WebMCPOptions) {
             latest.current.slug,
             execution?.signal,
           );
-          return {
-            phase: agreement.room.phase,
-            room_version: agreement.room.version,
-            final_candidate: agreement.candidates.find(
-              (candidate) => candidate.id === agreement.room.nominated_candidate_id,
-            ),
-            privacy: agreement.privacy,
-            public_audit: agreement.audit_events,
-          };
+          return formatAgreementToolResult(agreement);
         },
       }),
     };
