@@ -11,11 +11,11 @@
 - Live URL: https://unsaid-agreement.kbelcher.chatgpt.site
 - Public repository: https://github.com/Crazy-Pyro/unsaid-webmcp
 - Demo video: https://youtu.be/2VwElVuBz3k
-- Frozen commit: pending
-- Site version: 8 (`appgprj_6a98a492a7308191a8921f29804b17da~appgver_7cdbe18e80fc81918f460fdd6c476e06`)
-- Release tag: pending
-
-These values are replaced with verified public links and immutable identifiers before submission.
+- Devpost project: https://devpost.com/software/unsaid-private-context-shared-agreement
+- Submission timestamp: 2026-09-03T11:39:28-07:00 (PDT; verified immediately after submission)
+- Frozen application commit: `231783dc0712d4faad3a126b3c58c4b200909523`
+- Site version: 9 (`appgprj_6a98a492a7308191a8921f29804b17da~appgver_d2849cec9a9081918543b8774d7a8d37`)
+- Release tag: `submission-2026-09-03`
 
 ## Short description
 
