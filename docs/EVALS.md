@@ -62,5 +62,5 @@ Result: Pass.
 - A ratification request without explicit human intent returned `403 HUMAN_ACTION_REQUIRED`.
 - A regular browser can complete the flow through the Manual tab.
 - WebMCP execution `AbortSignal`s reach the underlying read, mutation, and refresh requests.
-- Read tools return the common result envelope: a live five-candidate briefing result measured 1,131 characters, the six-candidate worst-case fixture measured 1,718, and the complete nine-event agreement receipt measured 1,436.
+- Read tools return the common result envelope: a live five-candidate briefing result measured 1,131 characters, the six-candidate worst-case fixture stayed below 1,800, and the complete nine-event agreement receipt measured 1,436.
 - During a forced local server outage, both human ratification controls became disabled with a reconnecting notice and re-enabled after the server returned; the browser console remained free of errors.
