@@ -78,6 +78,17 @@ const stale = await jsonRequest(`/api/rooms/${slug}/ballots`, {
 assert.equal(stale.response.status, 409);
 assert.equal(stale.payload.error.code, 'STALE_ROOM_VERSION');
 
+const incomplete = await jsonRequest(`/api/rooms/${slug}/ballots`, {
+  token,
+  body: {
+    room_version: 2,
+    evaluations: [{ candidate_id: 'museum-sprint', stance: 'preferred' }],
+  },
+  requestId: `flow-incomplete-${crypto.randomUUID()}`,
+});
+assert.equal(incomplete.response.status, 422);
+assert.equal(incomplete.payload.error.code, 'INCOMPLETE_INITIAL_BALLOT');
+
 const unknown = await jsonRequest(`/api/rooms/${slug}/ballots`, {
   token,
   body: {
@@ -148,6 +159,18 @@ const invalidSetting = await jsonRequest(`/api/rooms/${slug}/bridges`, {
 assert.equal(invalidSetting.response.status, 422);
 assert.equal(invalidSetting.payload.error.code, 'INVALID_SETTING');
 
+const invalidFormat = await jsonRequest(`/api/rooms/${slug}/bridges`, {
+  token,
+  body: {
+    room_version: stateResult.payload.room.version,
+    base_candidate_id: 'lakeside-lab',
+    changes: [{ field: 'format', value: 'Unstructured discussion' }],
+  },
+  requestId: `flow-invalid-format-${crypto.randomUUID()}`,
+});
+assert.equal(invalidFormat.response.status, 422);
+assert.equal(invalidFormat.payload.error.code, 'INVALID_FORMAT');
+
 const signalOptions = {
   token,
   body: {
@@ -163,8 +186,19 @@ const signal = await jsonRequest(`/api/rooms/${slug}/signals`, signalOptions);
 assert.equal(signal.response.status, 200);
 const signalReplay = await jsonRequest(`/api/rooms/${slug}/signals`, signalOptions);
 assert.deepEqual(signalReplay.payload, signal.payload);
+const duplicateSignal = await jsonRequest(`/api/rooms/${slug}/signals`, {
+  ...signalOptions,
+  requestId: `flow-signal-duplicate-${crypto.randomUUID()}`,
+});
+assert.equal(duplicateSignal.response.status, 200);
+assert.equal(duplicateSignal.payload.room_version, signal.payload.room_version);
+assert.match(duplicateSignal.payload.summary, /already represented/i);
 
-const bridge = await jsonRequest(`/api/rooms/${slug}/bridges`, {
+stateResult = await jsonRequest(`/api/rooms/${slug}/state`, { token });
+assert.equal(stateResult.payload.privacy.structured_signals_shared, 8);
+assert.equal(stateResult.payload.signals.length, 8);
+
+const bridgeOptions = {
   token,
   body: {
     room_version: signal.payload.room_version,
@@ -176,13 +210,34 @@ const bridge = await jsonRequest(`/api/rooms/${slug}/bridges`, {
     ],
   },
   requestId: `flow-bridge-${crypto.randomUUID()}`,
-});
+};
+const bridge = await jsonRequest(`/api/rooms/${slug}/bridges`, bridgeOptions);
 assert.equal(bridge.response.status, 200);
 const bridgeId = bridge.payload.data.candidate_id;
+const duplicateBridge = await jsonRequest(`/api/rooms/${slug}/bridges`, {
+  ...bridgeOptions,
+  requestId: `flow-bridge-duplicate-${crypto.randomUUID()}`,
+});
+assert.equal(duplicateBridge.response.status, 200);
+assert.equal(duplicateBridge.payload.room_version, bridge.payload.room_version);
+assert.equal(duplicateBridge.payload.data.candidate_id, bridgeId);
+assert.match(duplicateBridge.payload.summary, /already exists/i);
 
 stateResult = await jsonRequest(`/api/rooms/${slug}/state`, { token });
 let bridgeCandidate = stateResult.payload.candidates.find(
   (candidate) => candidate.id === bridgeId,
+);
+assert.equal(
+  stateResult.payload.candidates.filter(
+    (candidate) => candidate.source_kind === 'bridge',
+  ).length,
+  1,
+);
+assert.equal(
+  stateResult.payload.audit_events.filter(
+    (event) => event.event_type === 'bridge_proposed',
+  ).length,
+  1,
 );
 assert.deepEqual(bridgeCandidate.aggregate, {
   preferred: 2,
@@ -222,18 +277,45 @@ const rejectedNomination = await jsonRequest(`/api/rooms/${slug}/nominations`, {
 assert.equal(rejectedNomination.response.status, 409);
 assert.equal(rejectedNomination.payload.error.code, 'CANDIDATE_NOT_VIABLE');
 
-const nomination = await jsonRequest(`/api/rooms/${slug}/nominations`, {
+const nominationOptions = {
   token,
   body: {
     room_version: stateResult.payload.room.version,
     candidate_id: bridgeId,
   },
   requestId: `flow-nomination-${crypto.randomUUID()}`,
-});
+};
+const nomination = await jsonRequest(
+  `/api/rooms/${slug}/nominations`,
+  nominationOptions,
+);
 assert.equal(nomination.response.status, 200);
+const duplicateNomination = await jsonRequest(
+  `/api/rooms/${slug}/nominations`,
+  {
+    ...nominationOptions,
+    requestId: `flow-nomination-duplicate-${crypto.randomUUID()}`,
+  },
+);
+assert.equal(duplicateNomination.response.status, 200);
+assert.equal(
+  duplicateNomination.payload.room_version,
+  nomination.payload.room_version,
+);
+assert.match(duplicateNomination.payload.summary, /already nominated/i);
 
 stateResult = await jsonRequest(`/api/rooms/${slug}/state`, { token });
 assert.equal(stateResult.payload.room.phase, 'RATIFYING');
+bridgeCandidate = stateResult.payload.candidates.find(
+  (candidate) => candidate.id === bridgeId,
+);
+assert.equal(bridgeCandidate.is_locked, true);
+assert.equal(
+  stateResult.payload.audit_events.filter(
+    (event) => event.event_type === 'candidate_nominated',
+  ).length,
+  1,
+);
 
 const blockedRatification = await jsonRequest(`/api/rooms/${slug}/ratifications`, {
   token,
@@ -246,6 +328,51 @@ const blockedRatification = await jsonRequest(`/api/rooms/${slug}/ratifications`
 });
 assert.equal(blockedRatification.response.status, 403);
 assert.equal(blockedRatification.payload.error.code, 'HUMAN_ACTION_REQUIRED');
+
+const declined = await jsonRequest(`/api/rooms/${slug}/ratifications`, {
+  token,
+  body: {
+    room_version: stateResult.payload.room.version,
+    candidate_id: bridgeId,
+    decision: 'decline',
+  },
+  requestId: `flow-decline-${crypto.randomUUID()}`,
+  humanIntent: true,
+});
+assert.equal(declined.response.status, 200);
+
+stateResult = await jsonRequest(`/api/rooms/${slug}/state`, { token });
+assert.equal(stateResult.payload.room.phase, 'BRIDGING');
+assert.equal(stateResult.payload.room.nominated_candidate_id, null);
+bridgeCandidate = stateResult.payload.candidates.find(
+  (candidate) => candidate.id === bridgeId,
+);
+assert.equal(bridgeCandidate.is_locked, false);
+
+const reconsidered = await jsonRequest(`/api/rooms/${slug}/ballots`, {
+  token,
+  body: {
+    room_version: stateResult.payload.room.version,
+    evaluations: [{ candidate_id: bridgeId, stance: 'preferred' }],
+  },
+  requestId: `flow-reconsidered-${crypto.randomUUID()}`,
+});
+assert.equal(reconsidered.response.status, 200);
+
+stateResult = await jsonRequest(`/api/rooms/${slug}/state`, { token });
+assert.equal(stateResult.payload.room.phase, 'READY_TO_NOMINATE');
+const renomination = await jsonRequest(`/api/rooms/${slug}/nominations`, {
+  token,
+  body: {
+    room_version: stateResult.payload.room.version,
+    candidate_id: bridgeId,
+  },
+  requestId: `flow-renomination-${crypto.randomUUID()}`,
+});
+assert.equal(renomination.response.status, 200);
+
+stateResult = await jsonRequest(`/api/rooms/${slug}/state`, { token });
+assert.equal(stateResult.payload.room.phase, 'RATIFYING');
 
 const ratification = await jsonRequest(`/api/rooms/${slug}/ratifications`, {
   token,
@@ -265,6 +392,15 @@ assert.equal(agreement.payload.room.phase, 'AGREED');
 assert.equal(agreement.payload.room.nominated_candidate_id, bridgeId);
 assert.equal(agreement.payload.agreement.candidate.id, bridgeId);
 assert.equal(agreement.payload.privacy.raw_private_context_received, 0);
+assert.equal(agreement.payload.privacy.structured_signals_shared, 8);
+assert.equal(agreement.payload.privacy.bridge_proposals, 1);
+assert.equal(agreement.payload.audit_events.length, 12);
+for (let index = 1; index < agreement.payload.audit_events.length; index += 1) {
+  assert.ok(
+    agreement.payload.audit_events[index - 1].created_at <=
+      agreement.payload.audit_events[index].created_at,
+  );
+}
 assertNoPrivateContext(agreement.payload);
 
 console.log('UNSAID local API flow passed: BRIEFING → COLLECTING → BRIDGING → READY_TO_NOMINATE → RATIFYING → AGREED.');

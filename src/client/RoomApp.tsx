@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import Link from 'next/link';
 import {
   Activity,
@@ -194,12 +194,14 @@ export function RoomApp({ slug }: { slug: string }) {
   }
 
   return (
-    <RoomExperience
-      slug={slug}
-      state={state}
-      refresh={refresh}
-      connection={connection}
-    />
+    <MotionConfig reducedMotion="user">
+      <RoomExperience
+        slug={slug}
+        state={state}
+        refresh={refresh}
+        connection={connection}
+      />
+    </MotionConfig>
   );
 }
 
@@ -464,7 +466,13 @@ function RoomHeader({
             className={`status-dot ${webmcpDetected ? 'ready' : ''}`}
             aria-hidden="true"
           />
-          {webmcpDetected ? 'Agent interface ready' : 'Agent interface'}
+          <span aria-live="polite">
+            {webmcpDetected === null
+              ? 'Checking agent interface…'
+              : webmcpDetected
+                ? 'Agent interface ready'
+                : 'WebMCP not detected'}
+          </span>
         </Button>
         <Button variant="outline" size="sm" onClick={onFresh} disabled={freshBusy}>
           <RotateCcw aria-hidden="true" /> Fresh demo
@@ -1557,7 +1565,11 @@ function ToolsDialog({
         <DialogHeader>
           <span className="section-kicker"><Code2 aria-hidden="true" /> WebMCP / live protocol</span>
           <DialogTitle>
-            {detected ? 'Agent interface ready' : 'Agent interface not detected'}
+            {detected === null
+              ? 'Checking agent interface…'
+              : detected
+                ? 'Agent interface ready'
+                : 'WebMCP not detected'}
           </DialogTitle>
           <DialogDescription>
             Phase: {PHASE_LABELS[state.room.phase]}. Tools are registered by this

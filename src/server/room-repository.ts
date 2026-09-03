@@ -1098,7 +1098,6 @@ export async function publishSignal(
   if (replay) return replay;
   const room = await currentRoom(context.room.id);
   if (!room) throw new RoomError(404, 'ROOM_NOT_FOUND', 'Room not found.');
-  requireVersion(room, input.room_version);
   requirePhase(room, ['BRIDGING']);
   validateSignal(input, room.version);
 
@@ -1113,7 +1112,7 @@ export async function publishSignal(
       )
       .bind(room.id, context.participant.id, fingerprint),
   );
-  if (duplicate) {
+  if (duplicate && input.room_version <= room.version) {
     const result: ToolResult = {
       ok: true,
       room_version: room.version,
@@ -1125,6 +1124,7 @@ export async function publishSignal(
     await storeReceipt(context, requestId, result);
     return result;
   }
+  requireVersion(room, input.room_version);
 
   const count = await first<CountRow>(
     db
@@ -1378,7 +1378,6 @@ export async function proposeBridge(
   if (replay) return replay;
   const room = await currentRoom(context.room.id);
   if (!room) throw new RoomError(404, 'ROOM_NOT_FOUND', 'Room not found.');
-  requireVersion(room, input.room_version);
   requirePhase(room, ['BRIDGING']);
 
   const db = getD1();
@@ -1416,7 +1415,7 @@ export async function proposeBridge(
       )
       .bind(room.id, fingerprint),
   );
-  if (existing) {
+  if (existing && input.room_version <= room.version) {
     const result: ToolResult = {
       ok: true,
       room_version: room.version,
@@ -1429,6 +1428,7 @@ export async function proposeBridge(
     await storeReceipt(context, requestId, result);
     return result;
   }
+  requireVersion(room, input.room_version);
 
   const bridgeId = `${base.id}-bridge-${stableHash(fingerprint)}`.slice(0, 80);
   const changedDay = publicChanges.find((change) => change.field === 'day')?.to;
@@ -1559,10 +1559,38 @@ export async function nominateCandidate(
   if (replay) return replay;
   const room = await currentRoom(context.room.id);
   if (!room) throw new RoomError(404, 'ROOM_NOT_FOUND', 'Room not found.');
+  const db = getD1();
+  if (
+    room.phase === 'RATIFYING' &&
+    room.nominated_candidate_id === input.candidate_id &&
+    input.room_version <= room.version
+  ) {
+    const candidate = await first<{ title: string }>(
+      db
+        .prepare(
+          'SELECT title FROM candidates WHERE room_id = ? AND id = ? LIMIT 1',
+        )
+        .bind(room.id, input.candidate_id),
+    );
+    const result: ToolResult = {
+      ok: true,
+      room_version: room.version,
+      summary: `${candidate?.title ?? 'That candidate'} is already nominated for ratification.`,
+      public_effect:
+        'Three demo agents ratified. Your visible human approval is still required.',
+      privacy: 'Nomination does not record final human approval.',
+      data: {
+        candidate_id: input.candidate_id,
+        awaiting_human_ratification: true,
+      },
+      next_actions: nextActions('RATIFYING'),
+    };
+    await storeReceipt(context, requestId, result);
+    return result;
+  }
   requireVersion(room, input.room_version);
   requirePhase(room, ['READY_TO_NOMINATE']);
 
-  const db = getD1();
   const [candidate, ballotsForCandidate, participantCount] = await Promise.all([
     first<CandidateRow>(
       db

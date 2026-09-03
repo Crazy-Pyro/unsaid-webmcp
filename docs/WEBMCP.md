@@ -17,6 +17,9 @@ UNSAID uses top-level imperative registration through `document.modelContext.reg
 
 - Every write includes the latest `room_version`.
 - The browser wrapper generates an internal request ID for idempotent retry.
+- A repeated identical signal, bridge proposal, or active nomination is naturally
+  idempotent even when a client retries with a fresh request ID and the operation's
+  now-stale version. The server returns current success without another mutation.
 - Inputs reject unknown properties.
 - IDs and structured values are length- and type-bounded.
 - Tool results report `ok`, `room_version`, `summary`, visible `public_effect`, privacy notes, and valid next actions.
@@ -99,5 +102,7 @@ Returns the completed candidate, final room version, public audit ledger, and mi
 - Validation failures return bounded `422` errors.
 - Cross-origin mutations return `403 CROSS_ORIGIN_REQUEST`.
 - Ratification without the visible interface’s human-intent header returns `403 HUMAN_ACTION_REQUIRED`.
+- Human decline clears and unlocks the current nomination, returns the room to
+  `BRIDGING`, and leaves the candidate available for later evaluation and renomination.
 - Polling pauses while the document is hidden and backs off to 15 seconds after network failures.
 - Both ratification controls remain disabled while the room is reconnecting and re-enable only after a successful state refresh.

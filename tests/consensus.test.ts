@@ -39,6 +39,27 @@ describe('aggregateCandidate', () => {
     expect(aggregate.viable).toBe(false);
     expect(aggregate.distance_to_consensus).toBe(1);
   });
+
+  it('calculates distance as unacceptable plus missing ballots', () => {
+    const aggregate = aggregateCandidate(
+      'candidate',
+      [
+        { candidate_id: 'candidate', stance: 'preferred' },
+        { candidate_id: 'candidate', stance: 'unacceptable' },
+        { candidate_id: 'other', stance: 'unacceptable' },
+      ],
+      4,
+    );
+
+    expect(aggregate).toMatchObject({
+      preferred: 1,
+      acceptable: 0,
+      unacceptable: 1,
+      missing: 2,
+      distance_to_consensus: 3,
+      viable: false,
+    });
+  });
 });
 
 describe('rankCandidates', () => {
@@ -103,6 +124,41 @@ describe('rankCandidates', () => {
     expect(result.map((candidate) => candidate.id)).toEqual([
       'earlier',
       'later',
+    ]);
+  });
+
+  it('ranks nonviable options by distance, support, preference, then changes', () => {
+    const candidate = (
+      id: string,
+      distance: number,
+      preferred: number,
+      acceptable: number,
+      changeCount: number,
+    ) => ({
+      ...base,
+      id,
+      change_count: changeCount,
+      aggregate: {
+        preferred,
+        acceptable,
+        unacceptable: distance,
+        missing: 0,
+        distance_to_consensus: distance,
+        viable: false,
+      },
+    });
+    const result = rankCandidates([
+      candidate('farther', 2, 3, 0, 0),
+      candidate('fewer-changes', 1, 1, 2, 1),
+      candidate('more-changes', 1, 1, 2, 3),
+      candidate('less-support', 1, 1, 1, 0),
+    ]);
+
+    expect(result.map((entry) => entry.id)).toEqual([
+      'fewer-changes',
+      'more-changes',
+      'less-support',
+      'farther',
     ]);
   });
 });
